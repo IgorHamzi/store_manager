@@ -33,7 +33,18 @@ const quantityValidator = (req, res, next) => {
   next();
  };
 
+ const idValidator = (req, res, next) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(404).json({ message: 'Id not found' });
+  }
+
+  next();
+ };
+
 module.exports = {
   nameValidator,
   quantityValidator,
+  idValidator,
 };
