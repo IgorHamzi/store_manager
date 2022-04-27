@@ -23,7 +23,21 @@ const getById = async (req, res) => {
   }
 };
 
+const createProduct = async (req, res) => {
+  try {
+    const { name, quantity } = req.body;
+    const newProduct = await productsService.createProduct({ name, quantity });
+    if (newProduct.message) {
+      return res.status(newProduct.status).json({ message: 'Product already exists' });
+    }
+    return res.status(201).json(newProduct);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   getAll,
   getById,
+  createProduct,
 };

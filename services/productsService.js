@@ -23,7 +23,16 @@ const getById = async (id) => {
   }
 };
 
+const createProduct = async ({ name, quantity }) => {
+  const newProduct = await productsModel.createProduct({ name, quantity });
+  if (newProduct.message) {
+    return { message: newProduct.message, status: 409 };
+  }
+  return newProduct;
+};
+
 module.exports = {
   getAll,
   getById,
+  createProduct,
 };
