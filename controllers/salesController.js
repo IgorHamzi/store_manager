@@ -23,7 +23,30 @@ const getById = async (req, res) => {
   }
 };
 
+const createSales = async (req, res) => {
+  try {
+    const sales = req.body;
+    const newSale = await salesService.createSales(sales);
+    return res.status(201).json(newSale);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+const updateSales = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const sales = req.body;
+    const upSales = await salesService.updateSales(id, sales);
+    return res.status(200).json(upSales);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   getAll,
   getById,
+  createSales,
+  updateSales,
 };

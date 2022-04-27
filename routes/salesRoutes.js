@@ -1,6 +1,9 @@
 const express = require('express');
 const salesController = require('../controllers/salesController');
-const { idValidator, quantityValidator } = require('../middlewares/validationSales');
+const {
+  productIdValidator,
+  quantityValidator,
+} = require('../middlewares/validationSales');
 
 const routes = express.Router();
 
@@ -8,6 +11,8 @@ routes.get('/', salesController.getAll);
 
 routes.get('/:id', salesController.getById); 
 
-routes.post('/', idValidator, quantityValidator);
+routes.post('/', productIdValidator, quantityValidator, salesController.createSales);
+
+routes.put('/:id', productIdValidator, quantityValidator, salesController.updateSales);
 
 module.exports = routes;
