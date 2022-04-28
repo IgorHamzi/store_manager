@@ -46,12 +46,13 @@ const updateSales = async (req, res) => {
 
 const deleteSale = async (req, res) => {
   const { id } = req.params;
-  try {
-    await salesService.deleteSale(id);
-    return res.status(204).end();
-  } catch (error) {
-    return res.status(404).json({ message: 'Sale not found' });
+  const resultDelete = await salesService.deleteSale(id);
+
+  if (!resultDelete) {
+    return res.status(404).send({ message: 'Sale not found' });
   }
+
+  return res.status(204).send();
 };
 
 module.exports = {

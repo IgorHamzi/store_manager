@@ -15,4 +15,6 @@ routes.post('/', productIdValidator, quantityValidator, salesController.createSa
 
 routes.put('/:id', productIdValidator, quantityValidator, salesController.updateSales);
 
+routes.delete('/sales/:id', salesController.deleteSale);
+
 module.exports = routes;
