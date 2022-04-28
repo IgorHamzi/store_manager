@@ -1,201 +1,74 @@
-const sinon = require('sinon');
 const { expect } = require('chai');
+const sinon = require('sinon');
 
-const productsService = require('../../../services/productsService');
-const productsController = require('../../../controllers/productsController');
+productController = require('../../../controllers/productsController');
+productService = require('../../../services/productsService');
 
-describe('Ao chamar o controller de getAll', () => {
-  describe('quando o payload informado não é válido', () => {
-    const response = {};
-    const request = {};
+const response = {};
+const request = {};
 
-    before(() => {
-      response.status = sinon.stub()
-        .returns(response);
-      response.send = sinon.stub()
-        .returns();
+before(() => {
+  response.status = sinon.stub().returns(response);
+  response.json = sinon.stub().returns(response);
+})
 
-      const expectedResult = [[ { id: 1, name: 'Martelo do thor', quantity: 10 }, { id: 2, name: 'Traje de encolhimento', quantity: 20 } ]];
-  
-      sinon.stub(productsService, 'getAll').resolves(expectedResult);
-    });
 
-    after(() => {
-      productsService.getAll.restore();
-    });
+describe('Testa a camada controllers', () =>{
+  const allProducts = [{id: 1, name: 'coxinha de frango', quantity: 10}, {id: 2, name: 'pastel de carne', quantity: 8}];
+  const newProduct = {name: 'pastel de carne', quantity: 2};
 
-    it('é chamado o status com o código 400', async () => {
-      await productsController.getAll(request, response);
+  describe('Verifica se todos os produtos são retornados', () => {
+    before(async () => {
+      sinon.stub(productService, 'getAll').resolves(allProducts);
+    })
+
+    after(async () => {
+      productService.getAll.restore();
+    })
+
+    it('Produtos retornados', async () => {
+      await productController.getAll(request, response);
 
       expect(response.status.calledWith(200)).to.be.equal(true);
-    });
+      expect(response.json.calledWith(allProducts)).to.be.equal(true);
+    })
+  })
 
-    it('é chamado o send com a mensagem "Dados inválidos"', async () => {
-      await productsController.getAll(request, response);
-      const expectedResult = [[ { id: 1, name: 'Martelo do thor', quantity: 10 }, { id: 2, name: 'Traje de encolhimento', quantity: 20 } ]];
+  describe('verifica se passado um ID, o produto é retornado', () => {
+    request.params = { id: 1 };
 
-      expect(response.send.calledWith(expectedResult)).to.be.equal(true);
-    });
+    before(async () => {
+      sinon.stub(productService, 'getById').resolves(allProducts);
+    })
 
-  });
-});
+    after(async () => {
+      productService.getById.restore()
+    })
 
+    it('Retorna um produto', async () => {
+      await productController.getById(request, response);
 
-describe('Ao chamar o controller de getById', () => {
-  describe('quando o id informado é válido', () => {
-    const response = {};
-    const request = {};
-  
-    before(() => {
-      response.status = sinon.stub()
-        .returns(response);
-      response.send = sinon.stub()
-        .returns();
-  
-      request.params = {
-        id: 1
-      }
-  
-      const expectedResult = [[ { id: 1, name: 'Martelo do thor', quantity: 10 } ]];
-  
-      sinon.stub(productsService, 'getById').resolves(expectedResult);
-    });
-  
-    after(() => {
-      productsService.getById.restore();
-    });
-  
-    it('é chamado o status com o código 200', async () => {
-      await productsController.getById(request, response);
-  
       expect(response.status.calledWith(200)).to.be.equal(true);
-    });
-  
-    it('é chamado o send retornando o produto', async () => {
-      await productsController.getById(request, response);
-      const expectedResult = [[ { id: 1, name: 'Martelo do thor', quantity: 10 } ]];
-  
-  
-      expect(response.send.calledWith(expectedResult)).to.be.equal(true);
-    });
-  
-  });
-  
-  describe('quando o id informado não é válido', () => {
-    const response = {};
-    const request = {};
-  
-    before(() => {
-      response.status = sinon.stub()
-        .returns(response);
-      response.send = sinon.stub()
-        .returns();
-  
-      request.params = {
-        id: undefined,
-      }
-  
-      const expectedResult = undefined;
-  
-      sinon.stub(productsService, 'getById').resolves(expectedResult);
-    });
-  
-    after(() => {
-      productsService.getById.restore();
-    });
-  
-    it('é chamado o status com o código 404', async () => {
-      await productsController.getById(request, response);
-  
-      expect(response.status.calledWith(404)).to.be.equal(true);
-    });
-  
-    it('é chamado o send com a mensagem "Dados inválidos"', async () => {
-      await productsController.getById(request, response);
-      const expectedResult = { message: 'Product not found' };
-  
-  
-      expect(response.send.calledWith(expectedResult)).to.be.equal(true);
-    });
-  });
-});
+      expect(response.json.calledWith(allProducts)).to.be.equal(true);
+    })
+  })
 
-describe('Ao chamar o controller de createProduct', () => {
-  describe('quando o produto informado é válido', () => {
-    const response = {};
-    const request = {};
-  
-    before(() => {
-      response.status = sinon.stub()
-        .returns(response);
-      response.send = sinon.stub()
-        .returns();
-  
-      request.body = {
-        name: "produto",
-        quantity: 100
-      }
-  
-      const expectedResult = { id: 4, name: 'produto', quantity: 100 };
-  
-      sinon.stub(productsService, 'createProduct').resolves(expectedResult);
-    });
-  
-    after(() => {
-      productsService.createProduct.restore();
-    });
-  
-    it('é chamado o status com o código 201', async () => {
-      await productsController.createProduct(request, response);
-  
+  describe('verifica se cria um novo produto', () => {
+    request.body = { name: 'enroladinho', quantity: 5 };
+
+    before(async () => {
+      sinon.stub(productService, 'createProduct').resolves(newProduct);
+    })
+
+    after(async () => {
+      productService.createProduct.restore();
+    })
+
+    it('retorna um novo protudo', async () => {
+      await productController.createProduct(request, response);
+
       expect(response.status.calledWith(201)).to.be.equal(true);
-    });
-  
-    it('é chamado o send retornando o produto', async () => {
-      await productsController.createProduct(request, response);
-      const expectedResult = { id: 4, name: 'produto', quantity: 100 };
-  
-      expect(response.send.calledWith(expectedResult)).to.be.equal(true);
-    });
-  
-  });
-  
-  describe('quando o produto informado é inválido', () => {
-    const response = {};
-    const request = {};
-  
-    before(() => {
-      response.status = sinon.stub()
-        .returns(response);
-      response.send = sinon.stub()
-        .returns();
-  
-      request.body = {
-        name: "produto inválido",
-        quantity: 100
-      }
-  
-      const expectedResult = false;
-  
-      sinon.stub(productsService, 'createProduct').resolves(expectedResult);
-    });
-  
-    after(() => {
-      productsService.createProduct.restore();
-    });
-  
-    it('é chamado o status com o código 409', async () => {
-      await productsController.createProduct(request, response);
-  
-      expect(response.status.calledWith(409)).to.be.equal(true);
-    });
-  
-    it('é chamado o send retornando o produto', async () => {
-      await productsController.createProduct(request, response);
-      const expectedResult = { message: 'Product already exists' };
-  
-      expect(response.send.calledWith(expectedResult)).to.be.equal(true);
-    });
-  
-  });
+      expect(response.json.calledWith(newProduct)).to.be.equal(true);
+    })
+  })
 });

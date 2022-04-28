@@ -1,69 +1,55 @@
-const sinon = require('sinon');
 const { expect } = require('chai');
-
+const sinon = require('sinon');
 const connection = require('../../../models/mysql-connection.js');
-const SalesModel = require('../../../models/salesModel');
 
-describe('Retorna todas as vendas do BD', () => {
-  before(async () => {
-    const expectedResult = [[ { id: 1, date: '2021-09-09 00:45:23' }, { id: 2, date: '2021-09-09 00:45:23' } ]];
-
-    sinon.stub(connection, 'execute').resolves(expectedResult); 
-  });
-
-  after(async () => {
-    connection.execute.restore();
-  });
+const salesModel = require('../../../models/salesModel');
 
 
-  describe('quando é retornado com sucesso', () => {
+describe('Testa a camada models', () => {
+  const allSales =  [
+    {
+      "saleId": 1,
+      "date": "2021-09-09T04:54:29.000Z",
+      "productId": 1,
+      "quantity": 2
+    },
+    {
+      "saleId": 1,
+      "date": "2021-09-09T04:54:54.000Z",
+      "productId": 2,
+      "quantity": 2
+    }
+  ]
 
-    it('retorna um array de objetos', async () => {
-      const response = await SalesModel.getAll();
-
-      expect(response).to.be.a('array');
-      expect(response[0]).to.be.a('object');
-    });
-
-    it('o elemento do array possui todas as propriedades', async () => {
-      const response = await SalesModel.getAll();
-
-      expect(response[0]).to.have.a.property('id');
-      expect(response[0]).to.have.a.property('date');
-    });
-
-  });
-});
-
-describe('Retorna uma venda do BD', () => {
-
-  describe('quando é retornado com sucesso', () => {
-    const id = 1;
-    
+  describe('Verifica se retorna todos as vendas', () => {
     before(async () => {
-      const expectedResult = [[ { id: 1, date: '2021-09-09 00:45:23' } ]];
-  
-  
-      sinon.stub(connection, 'execute').resolves(expectedResult);
-    });
-  
+      sinon.stub(connection, 'execute').resolves([allSales]);
+    })
+
     after(async () => {
       connection.execute.restore();
-    });
+    })
 
-    it('retorna um objeto', async () => {
-      const response = await SalesModel.getById(id);
+    it('Retorna todos as vendas', async () => {
+      const result = await salesModel.getSalesAll();
 
-      expect(response.length).not.to.be.equal(undefined);
-      expect(response[0]).to.be.a('object');
-    });
+      expect(result).to.be.equals(allSales);
+    })
+  })
 
-    it('o elemento possui todas as propriedades', async () => {
-      const response = await SalesModel.getById(id);
-      
-      expect(response[0]).to.have.a.property('id');
-      expect(response[0]).to.have.a.property('date');
-    });
+  describe('verifica se passado um ID, uma venda é retornado', () => {
+    before(async () => {
+      sinon.stub(connection, 'execute').resolves([allSales])
+    })
 
-  });
-});
+    after(async () => {
+      connection.execute.restore();
+    })
+
+    it('Venda por Id retornado', async () => {
+      const result = await salesModel.getSalesId(1)
+
+      expect(result[0]).to.include.all.keys('date', 'productId', 'quantity');
+    })
+  })
+})
