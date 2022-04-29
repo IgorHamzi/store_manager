@@ -25,11 +25,11 @@ const getById = async (req, res) => {
 
 const createSale = async (req, res) => {
   const sales = await salesService.createSale(req.body);
-  // if (sales === false) {
-  //   res
-  //     .status(422)
-  //     .send({ message: "Such amount is not permitted to sell" });
-  // }
+   // if (sales === false) {
+   //  res
+   //    .status(422)
+   //    .send({ message: "Such amount is not permitted to sell" });
+   // }
 
   res
     .status(201)

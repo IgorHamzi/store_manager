@@ -1,7 +1,7 @@
 const sinon = require('sinon');
 const { expect } = require('chai');
 
-const ProductsModel = require('../../../models/ProductsModel');
+const ProductsModel = require('../../../models/productsModel');
 const productsService = require('../../../services/productsService');
 
 describe('Retorna todos os produtos do BD', () => {

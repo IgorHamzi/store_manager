@@ -1,7 +1,7 @@
 const sinon = require('sinon');
 const { expect } = require('chai');
 
-const SalesModel = require('../../../models/SalesModel');
+const SalesModel = require('../../../models/salesModel');
 const salesService = require('../../../services/salesService');
 
 describe('Retorna todas as sales do BD', () => {

@@ -2,7 +2,7 @@ const sinon = require('sinon');
 const { expect } = require('chai');
 
 const connection = require('../../../models/connection');
-const SalesModel = require('../../../models/SalesModel');
+const SalesModel = require('../../../models/salesModel');
 
 describe('Retorna todas as vendas do BD', () => {
   before(async () => {
