@@ -1,42 +1,69 @@
-const { expect } = require('chai');
 const sinon = require('sinon');
-const connection = require('../../../models/mysql-connection.js');
+const { expect } = require('chai');
 
-const productModel = require('../../../models/productsModel');
+const connection = require('../../../models/connection');
+const ProductsModel = require('../../../models/ProductsModel');
 
-describe('Testa a camada Models', () => {
-  const allProducts = [{id: 1, name: 'coxinha de frango', quantity: 10}, {id: 2, name: 'pastel de carne', quantity: 8}];
-  const productId = [{id: 1, name: 'coxinha de frango', quantity: 10}];
+describe('Retorna todos os produtos do BD', () => {
 
-  describe('Verifica se retorna todos os produtos', () => {
+  describe('quando é retornado com sucesso', () => {
     before(async () => {
-      sinon.stub(connection, 'execute').resolves([allProducts]);
-    })
-
+      const expectedResult = [[ { id: 1, name: 'Martelo do thor', quantity: 10 }, { id: 2, name: 'Traje de encolhimento', quantity: 20 } ]];
+  
+      sinon.stub(connection, 'execute').resolves(expectedResult);
+    });
+  
     after(async () => {
       connection.execute.restore();
-    })
+    });
 
-    it('Retorna todos os productos', async () => {
-      const result = await productModel.getAll();
+    it('retorna um array de objetos', async () => {
+      const response = await ProductsModel.getAll();
 
-      expect(result).to.be.equals(allProducts);
-    })
-  })
+      expect(response).to.be.a('array');
+      expect(response[0]).to.be.a('object');
+    });
 
-  describe('verifica se passado um ID, o produto é retornado', () => {
+    it('o elemento do array possui todas as propriedades', async () => {
+      const response = await ProductsModel.getAll();
+
+      expect(response[0]).to.have.a.property('id');
+      expect(response[0]).to.have.a.property('name');
+      expect(response[0]).to.have.a.property('quantity');
+    });
+
+  });
+});
+
+describe('Retorna um produto do BD', () => {
+
+  describe('quando é retornado com sucesso', () => {
+    const id = 1;
+    
     before(async () => {
-      sinon.stub(connection, 'execute').resolves([productId]);
-    })
-
+      const expectedResult = [[ { id: 1, name: 'Martelo do thor', quantity: 10 } ]];
+  
+      sinon.stub(connection, 'execute').resolves(expectedResult);
+    });
+  
     after(async () => {
-      connection.execute.restore()
-    })
+      connection.execute.restore();
+    });
 
-    it('Deve retorna um produco com ID específico', async () => {
-      const result = await productModel.getById(1);
+    it('retorna um objeto', async () => {
+      const response = await ProductsModel.getById(id);
 
-      expect(result).to.have.all.keys('id', 'name', 'quantity');
-    })
-  })
-})
+      expect(response.length).not.to.be.equal(undefined);
+      expect(response[0]).to.be.a('object');
+    });
+
+    it('o elemento possui todas as propriedades', async () => {
+      const response = await ProductsModel.getById(id);
+
+      expect(response[0]).to.have.a.property('id');
+      expect(response[0]).to.have.a.property('name');
+      expect(response[0]).to.have.a.property('quantity');
+    });
+
+  });
+});

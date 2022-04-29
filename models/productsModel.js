@@ -1,51 +1,46 @@
-const connection = require('./mysql-connection.js');
+const connection = require('./connection');
 
 const getAll = async () => {
-  const [products] = await connection.execute('SELECT * FROM StoreManager.products');
-  return products;
+  const [result] = await connection
+    .execute(
+      'SELECT id, name, quantity FROM StoreManager.products;',
+    );
+
+  return result;
 };
 
 const getById = async (id) => {
-  const [product] = await connection.execute(
-    'SELECT * FROM StoreManager.products WHERE id = ?', [id],
+  const [result] = await connection
+    .execute(
+      'SELECT id, name, quantity FROM StoreManager.products WHERE id = ?;',
+      [id],
     );
-  return product[0];
+
+  return result;
 };
 
 const createProduct = async ({ name, quantity }) => {
-  const findAll = await getAll();
-  const filterProduct = findAll.find((product) => product.name === name);
-  if (filterProduct) {
-    return { message: 'Product already exists' };
-  }
-  const [{ insertId }] = await connection.execute(
-    `INSERT INTO StoreManager.products (name, quantity)
-    VALUES (?, ?)`, [name, quantity],
-  );
-
-  return {
-    id: insertId,
-    name,
-    quantity,
-  };
+  await connection
+    .execute(
+      'INSERT INTO StoreManager.products (name, quantity) VALUES (?,?);',
+      [name, quantity],
+    );
 };
 
 const updateProduct = async ({ id, name, quantity }) => {
-  await connection.execute(
-    'UPDATE StoreManager.products SET name = ?, quantity = ? WHERE id = ?', [name, quantity, id],
-  );
-
-  return {
-    id,
-    name,
-    quantity,
-  };
+  await connection
+    .execute(
+      'UPDATE StoreManager.products set name=?, quantity=? WHERE id=?;',
+      [name, quantity, id],
+    );
 };
 
-const deleteProduct = async (id) => {
-  await connection.execute(
-    'DELETE FROM StoreManager.products WHERE id = ?', [id],
-  );
+const deleteProduct = async ({ id }) => {
+  await connection
+    .execute(
+      'DELETE FROM StoreManager.products WHERE id=?;',
+      [id],
+    );
 };
 
 module.exports = {

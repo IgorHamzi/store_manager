@@ -1,60 +1,72 @@
 const productsService = require('../services/productsService');
 
-const getAll = async (req, res) => {
-  try {
-      const products = await productsService.getAll();    
-      return res.status(200).json(products);
-  } catch (err) {
-      return res.status(404).json({ message: 'product not found' });
-  }  
+const getAll = async (_req, res) => {
+  const products = await productsService.getAll();
+
+  res
+    .status(200)
+    .send(products);
 };
 
 const getById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const product = await productsService.getById(id);
-    if (product.message) {
-      return res.status(product.status).json({ message: product.message });
-    }
-    return res.status(200).json(product);
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ message: err.message });
+  const { id } = req.params;
+  const products = await productsService.getById(id);
+
+  if (!products) {
+    return res
+      .status(404)
+      .send({ message: 'Product not found' });
   }
+
+  res
+    .status(200)
+    .send(products);
 };
 
 const createProduct = async (req, res) => {
-  try {
-    const { name, quantity } = req.body;
-    const newProduct = await productsService.createProduct({ name, quantity });
-    if (newProduct.message) {
-      return res.status(newProduct.status).json({ message: 'Product already exists' });
-    }
-    return res.status(201).json(newProduct);
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
+  const { name, quantity } = req.body;
+  const product = await productsService.createProduct(name, quantity);
+  
+  if (!product) {
+    return res
+      .status(409)
+      .send({ message: 'Product already exists' });
   }
+
+  res
+    .status(201)
+    .send(product);
 };
 
 const updateProduct = async (req, res) => {
-  try {
-    const { name, quantity } = req.body;
-    const { id } = req.params;
-    const upProduct = await productsService.updateProduct({ id, name, quantity });
-    return res.status(200).json(upProduct);
-  } catch (err) {
-    return res.status(404).json({ message: err.message });
+  const { id } = req.params;
+  const { name, quantity } = req.body;
+  const product = await productsService.updateProduct({ id, name, quantity });
+
+  if (!product) {
+    return res
+      .status(404)
+      .send({ message: 'Product not found' });
   }
+
+  res
+    .status(200)
+    .send(product);
 };
 
 const deleteProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await productsService.deleteProduct(id);
-    return res.status(204).end();
-  } catch (err) {
-    return res.status(404).json({ message: err.message });
+  const { id } = req.params;
+  const product = await productsService.deleteProduct({ id });
+
+  if (!product) {
+    return res
+      .status(404)
+      .send({ message: 'Product not found' });
   }
+
+  res
+    .status(204)
+    .end();
 };
 
 module.exports = {

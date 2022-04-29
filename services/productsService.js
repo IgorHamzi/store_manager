@@ -1,53 +1,57 @@
-const productsModel = require('../models/productsModel');
+const ProductsModel = require('../models/productsModel');
 
 const getAll = async () => {
-  try {
-    const products = await productsModel.getAll();
-    return products;
-  } catch (error) {
-    console.log(error);
-    throw new Error('Database problems');
-  }
+  const result = await ProductsModel.getAll();
+  
+  return result;
 };
 
 const getById = async (id) => {
-  try {
-    const product = await productsModel.getById(id);
-    if (!product) {
-      return { message: 'Product not found', status: 404 };
-    }
-    return product;
-  } catch (error) {
-    console.log(error);
-    throw new Error('Database problems');
-  }
+  if (!id) return false;
+  
+  const [result] = await ProductsModel.getById(id);
+  
+  return result;
 };
 
-const createProduct = async ({ name, quantity }) => {
-  const newProduct = await productsModel.createProduct({ name, quantity });
-  if (newProduct.message) {
-    return { message: newProduct.message, status: 409 };
+const createProduct = async (name, quantity) => {
+  const allProducts = await getAll();
+  
+  if (allProducts.find((product) => product.name === name)) {
+    return false;
   }
-  return newProduct;
+
+  const id = allProducts.length + 1;
+
+  await ProductsModel.createProduct({ name, quantity });
+
+  return { id, name, quantity };
 };
 
 const updateProduct = async ({ id, name, quantity }) => {
-  const productId = await productsModel.getById(id);
-  if (!productId) {
-    throw Error('Product not found');
+  const allProducts = await getAll();
+  const product = allProducts.find((p) => p.id === Number(id));
+
+  if (!product) {
+    return false;
   }
-  const upProduct = await productsModel.updateProduct({ id, name, quantity });
-  return upProduct;
+  
+  await ProductsModel.updateProduct({ id, name, quantity });
+
+  return { id, name, quantity };
 };
 
-const deleteProduct = async (id) => {
-  const productId = await productsModel.getById(id);
-  if (!productId) {
-    throw Error('Product not found');
+const deleteProduct = async ({ id }) => {
+  const allProducts = await getAll();
+  const product = allProducts.find((p) => p.id === Number(id));
+  
+  if (!product) {
+    return false;
   }
+  
+  await ProductsModel.deleteProduct({ id });
 
-  const delproduct = await productsModel.deleteProduct(id);
-  return delproduct;
+  return product;
 };
 
 module.exports = {
